@@ -25,12 +25,7 @@ int main()
 			infile.open("test.txt", ios::in);
 			while (!infile.eof())
 			{
-				getline(infile, temp_string);
-				for (UTF8_Blocks_t UTF8_Block : UTF8_Blocks)
-				{
-					UTF8_Blocks->nums++;
-					break;
-				}
+
 			}
 		}
 	}
@@ -109,4 +104,39 @@ int HexToDec(string Hex_string)
 		}
 	}
 	return re;
+}
+
+long  get_unicode(ifstream* infile)
+{
+	int temp_char = 0, UTF_len = 0;
+	while (!infile->eof())
+	{
+		temp_char = infile->get();
+		if (temp_char >> 7 != 0)
+		{
+			if (UTF_len == 0 && temp_char != EOF)
+			{
+				for (int i = 0; i < 6; i++)
+				{
+					if ((temp_char & (0x80 >> i)) != 0)
+					{
+						UTF_len++;
+					}
+					else
+					{
+						UTF_len--;
+						break;
+					}
+				}
+				cout << UTF_len + 1 << endl;
+			}
+			else if (temp_char >> 7 != 0)
+			{
+				if (temp_char >> 6 == 0b10)
+				{
+					UTF_len--;
+				}
+			}
+		}
+	}
 }

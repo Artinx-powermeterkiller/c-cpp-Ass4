@@ -19,5 +19,5 @@ typedef struct
 
 int read_file(ifstream* file, UTF8_Blocks_t*);
 int HexToDec(string Hex_string);
-
+long  get_unicode(ifstream* infile);
 #endif //

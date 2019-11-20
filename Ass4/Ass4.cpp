@@ -21,7 +21,7 @@ int main()
 		if (read_file(&infile, UTF8_Blocks))
 		{
 			infile.close();
-			infile.open("test.txt", ios::in);
+			infile.open("sample6.txt", ios::in);
 			while (!infile.eof())
 			{
 				unicode=get_unicode(&infile);
@@ -98,7 +98,7 @@ int HexToDec(string Hex_string)
 		}
 		else if ((int) * (temp_char + i) <= 'Z' && *(temp_char + i) >= 'A')
 		{
-			re += (int)pow(16, length - i - 1) * ((int) * (temp_char + i) - 'Z' + 10);
+			re += (int)pow(16, length - i - 1) * ((int) * (temp_char + i) - 'A'+ 10);
 		}
 		else if ((int) * (temp_char + i) <= 'z' && *(temp_char + i) >= 'a')
 		{
@@ -139,7 +139,6 @@ long  get_unicode(ifstream* infile)
 			temp_char = infile->get();
 			temp_chars[j] = temp_char;
 		}
-		cout << UTF_len << endl;
 	}
 	else if (temp_char >> 7 != 0)
 	{

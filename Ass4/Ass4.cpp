@@ -9,26 +9,32 @@ int main()
 {
 	ifstream infile;
 	string temp_string;
-	UTF8_Blocks_t UTF8_Blocks[BLOCK_NUM];
-	wchar_t* temp_wchar;
+	UTF8_Blocks_t* UTF8_Blocks=new UTF8_Blocks_t[BLOCK_NUM];
 	int max_num = 0, type_orde = 0;
+	long long unicode = 0;
 	infile.open("Blocks.txt", ios::in);
 	//	if (&infile == NULL)
 	//	{
 	//		cout << "File missing!" << endl;
 	//	}
 	//	else
-	{
 		if (read_file(&infile, UTF8_Blocks))
 		{
 			infile.close();
 			infile.open("test.txt", ios::in);
 			while (!infile.eof())
 			{
-
+				unicode=get_unicode(&infile);
+				if (unicode == -1) break;
+				for (int i = 0; i < BLOCK_NUM; i++)
+				{
+					if (unicode >= UTF8_Blocks[i].begin_order && unicode <= UTF8_Blocks[i].end_order)
+					{
+						UTF8_Blocks[i].nums++;
+					}
+				}
 			}
 		}
-	}
 
 	for (int i = 0; i < BLOCK_NUM; i++)
 	{
@@ -108,35 +114,45 @@ int HexToDec(string Hex_string)
 
 long  get_unicode(ifstream* infile)
 {
-	int temp_char = 0, UTF_len = 0;
-	while (!infile->eof())
+	long long re = 0;
+	int UTF_len = 0;
+	int temp_char, temp_chars[4] = {0};
+	temp_char = infile->get();
+	if (temp_char == EOF) return -1;
+	if (temp_char >> 7 != 0)
 	{
-		temp_char = infile->get();
-		if (temp_char >> 7 != 0)
+		for (int i = 0; i < 6; i++)
 		{
-			if (UTF_len == 0 && temp_char != EOF)
+			if ((temp_char & (0x80 >> i)) != 0)
 			{
-				for (int i = 0; i < 6; i++)
-				{
-					if ((temp_char & (0x80 >> i)) != 0)
-					{
-						UTF_len++;
-					}
-					else
-					{
-						UTF_len--;
-						break;
-					}
-				}
-				cout << UTF_len + 1 << endl;
+				UTF_len++;
 			}
-			else if (temp_char >> 7 != 0)
+			else
 			{
-				if (temp_char >> 6 == 0b10)
-				{
-					UTF_len--;
-				}
+				break;
 			}
 		}
+		temp_chars[0] = temp_char;
+
+		for (int j = 1; j < UTF_len; j++)
+		{
+			temp_char = infile->get();
+			temp_chars[j] = temp_char;
+		}
+		cout << UTF_len << endl;
 	}
+	else if (temp_char >> 7 != 0)
+	{
+		return temp_char;
+	}
+
+	UTF_len--;
+
+	re = (temp_chars[0] & (0xFF >> (UTF_len+1)))<<(6* UTF_len);
+
+	for (int i = 1; i <=UTF_len; i++)
+	{
+		re += (temp_chars[i] & (0xFF >> 2)) << (6 *( UTF_len-i));
+	}
+	return re;
 }
